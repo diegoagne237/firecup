@@ -11,10 +11,10 @@ export default {
         text: '#f4f1f6',
         muted: '#9b96a5',
         faint: '#665f70',
-        pink: '#ff2f7e',
-        pinkdeep: '#b3114f',
+        pink: '#ff6a1a',
+        pinkdeep: '#c2470a',
         live: '#35e08c',
-        gold: '#ff8a2b',
+        gold: '#ffc233',
       },
       fontFamily: {
         display: ['Anton', 'Arial Narrow', 'sans-serif'],

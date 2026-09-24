@@ -23,7 +23,7 @@ html, body, #root {
 
 body {
   background:
-    radial-gradient(ellipse 120% 60% at 50% -10%, rgba(255, 47, 126, 0.16), transparent 60%),
+    radial-gradient(ellipse 120% 60% at 50% -10%, rgba(255, 106, 26, 0.16), transparent 60%),
     #0c0b0f;
 }
 

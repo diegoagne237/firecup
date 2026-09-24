@@ -15,10 +15,17 @@ export function useCampeonatos() {
 
   useEffect(() => {
     carregar()
+    // Nome do canal com sufixo único: evita colisão quando o efeito roda de
+    // novo antes do canal anterior terminar de ser removido (o Supabase
+    // recusa adicionar listeners num canal que já tem esse nome inscrito).
     const canal = supabase
-      .channel('campeonatos-lista')
+      .channel(`campeonatos-lista-${Math.random().toString(36).slice(2)}`)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'campeonatos' }, carregar)
-      .subscribe()
+    try {
+      canal.subscribe()
+    } catch (e) {
+      console.warn('Realtime indisponível para campeonatos:', e)
+    }
     return () => supabase.removeChannel(canal)
   }, [carregar])
 
@@ -60,7 +67,7 @@ export function useCampeonato(campeonatoId) {
     carregarTudo(campeonatoId).then(() => setLoading(false))
 
     canal = supabase
-      .channel(`campeonato-${campeonatoId}`)
+      .channel(`campeonato-${campeonatoId}-${Math.random().toString(36).slice(2)}`)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'jogos', filter: `campeonato_id=eq.${campeonatoId}` }, () =>
         carregarTudo(campeonatoId)
       )
@@ -70,7 +77,11 @@ export function useCampeonato(campeonatoId) {
       .on('postgres_changes', { event: '*', schema: 'public', table: 'campeonatos', filter: `id=eq.${campeonatoId}` }, () =>
         carregarTudo(campeonatoId)
       )
-      .subscribe()
+    try {
+      canal.subscribe()
+    } catch (e) {
+      console.warn('Realtime indisponível para este campeonato:', e)
+    }
 
     return () => {
       if (canal) supabase.removeChannel(canal)
