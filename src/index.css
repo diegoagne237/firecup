@@ -1,0 +1,22 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html, body, #root {
+  min-height: 100%;
+}
+
+body {
+  background:
+    radial-gradient(ellipse 120% 60% at 50% -10%, rgba(255, 47, 126, 0.16), transparent 60%),
+    #0c0b0f;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-thumb {
+  background: #2c2933;
+  border-radius: 999px;
+}

@@ -1,0 +1,664 @@
+<title>Fire Cup Painel</title>
+<meta charset="UTF-8">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    color-scheme: dark;
+    --bg: #0c0b0f;
+    --bg-grid: #121116;
+    --surface: #18161d;
+    --surface-2: #211e27;
+    --border: #2c2933;
+    --text: #f4f1f6;
+    --text-muted: #9b96a5;
+    --text-faint: #665f70;
+    --pink: #ff2f7e;
+    --pink-deep: #b3114f;
+    --pink-glow: rgba(255,47,126,.35);
+    --live: #35e08c;
+    --gold: #ff8a2b;
+    --font-display: 'Anton', 'Arial Narrow', sans-serif;
+    --font-body: 'Manrope', system-ui, sans-serif;
+    --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+  }
+
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:
+      radial-gradient(ellipse 120% 60% at 50% -10%, rgba(255,47,126,.16), transparent 60%),
+      var(--bg);
+    color:var(--text);
+    font-family:var(--font-body);
+    padding-inline:16px;
+    padding-block:24px 56px;
+    min-height:100%;
+    -webkit-font-smoothing:antialiased;
+  }
+
+  h1,h2,h3{ text-wrap:balance; margin:0; }
+
+  .wrap{ max-width:480px; margin:0 auto; display:flex; flex-direction:column; gap:22px; }
+
+  /* ---------- Header ---------- */
+  .header{ display:flex; flex-direction:column; align-items:center; gap:6px; padding-block:4px 2px; }
+  .brand{ display:flex; align-items:center; gap:10px; }
+  .brand .flame{ font-size:22px; filter:drop-shadow(0 0 8px var(--pink-glow)); }
+  .brand h1{
+    font-family:var(--font-display);
+    font-size:26px;
+    letter-spacing:.5px;
+    line-height:1;
+  }
+  .brand h1 span{ color:var(--pink); }
+  .subtitle{
+    color:var(--text-muted); font-size:12.5px;
+    text-transform:uppercase; letter-spacing:1.6px;
+  }
+
+  /* ---------- Mode switch (mockup only) ---------- */
+  .mode-switch{
+    display:flex; gap:6px; background:var(--surface); border:1px solid var(--border);
+    border-radius:12px; padding:4px;
+  }
+  .mode-switch button{
+    flex:1; border:0; background:transparent; color:var(--text-muted);
+    font-family:var(--font-body); font-weight:700; font-size:12.5px;
+    letter-spacing:.4px; text-transform:uppercase; padding:9px 4px; border-radius:9px;
+    cursor:pointer; transition:background .15s, color .15s;
+  }
+  .mode-switch button.active{ background:var(--pink); color:#fff; }
+
+  /* ---------- Tab bar ---------- */
+  .tabs{
+    display:flex; gap:4px; overflow-x:auto; padding-bottom:2px;
+    scrollbar-width:none;
+  }
+  .tabs::-webkit-scrollbar{ display:none; }
+  .tab{
+    flex:0 0 auto; border:1px solid var(--border); background:var(--surface);
+    color:var(--text-muted); font-family:var(--font-body); font-weight:700;
+    font-size:12.5px; letter-spacing:.3px; padding:9px 14px; border-radius:999px;
+    cursor:pointer; white-space:nowrap;
+  }
+  .tab.active{ background:var(--surface-2); color:var(--text); border-color:var(--pink); box-shadow:0 0 0 1px var(--pink) inset; }
+
+  .view{ display:flex; flex-direction:column; gap:18px; }
+  .view[hidden]{ display:none; }
+
+  /* ---------- Card ---------- */
+  .card{
+    background:var(--surface); border:1px solid var(--border); border-radius:16px;
+    padding:20px;
+  }
+  .card-title{
+    display:flex; align-items:center; justify-content:space-between; gap:10px;
+    margin-bottom:14px;
+  }
+  .card-title h2{ font-size:13px; text-transform:uppercase; letter-spacing:1.2px; color:var(--text-muted); }
+
+  /* ---------- Live match ---------- */
+  .live-card{
+    position:relative; overflow:hidden;
+    background:linear-gradient(160deg, var(--surface-2), var(--surface) 65%);
+    border:1px solid var(--pink-deep);
+    box-shadow:0 0 0 1px rgba(255,47,126,.12), 0 18px 40px -20px var(--pink-glow);
+  }
+  .live-tag{
+    display:inline-flex; align-items:center; gap:6px; background:rgba(53,224,140,.14);
+    color:var(--live); font-weight:800; font-size:11px; letter-spacing:1.2px;
+    padding:5px 10px; border-radius:999px; text-transform:uppercase;
+  }
+  .live-dot{ width:7px; height:7px; border-radius:50%; background:var(--live); box-shadow:0 0 0 0 rgba(53,224,140,.6); animation:pulse 1.6s infinite; }
+  @media (prefers-reduced-motion: reduce){ .live-dot{ animation:none; } }
+  @keyframes pulse{
+    0%{ box-shadow:0 0 0 0 rgba(53,224,140,.55); }
+    70%{ box-shadow:0 0 0 9px rgba(53,224,140,0); }
+    100%{ box-shadow:0 0 0 0 rgba(53,224,140,0); }
+  }
+  .live-meta{ color:var(--text-muted); font-size:12px; margin-top:10px; }
+  .live-score{
+    display:grid; grid-template-columns:1fr auto 1fr; align-items:center;
+    gap:14px; margin-top:20px;
+  }
+  .live-team{ display:flex; flex-direction:column; gap:3px; min-width:0; }
+  .live-team.right{ text-align:right; align-items:flex-end; }
+  .live-team .nome{ font-weight:800; font-size:16px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .live-team .jog{ font-size:11.5px; color:var(--text-faint); }
+  .live-vs{
+    font-family:var(--font-display); letter-spacing:.5px;
+    font-size:15px; font-weight:400; color:var(--text-faint);
+  }
+
+  /* ---------- Next matches ---------- */
+  .next-item{
+    display:flex; align-items:center; gap:12px; padding-block:13px;
+    border-bottom:1px solid var(--border);
+  }
+  .next-item:last-child{ border-bottom:0; }
+  .quadra-chip{
+    font-family:var(--font-mono); font-size:11px; font-weight:700; color:var(--text);
+    background:var(--surface-2); border:1px solid var(--border); border-radius:8px;
+    padding:5px 7px; min-width:44px; text-align:center; flex-shrink:0;
+  }
+  .next-teams{ flex:1; min-width:0; font-size:13.5px; font-weight:600; }
+  .next-teams .vs{ color:var(--text-faint); font-weight:500; padding-inline:5px; }
+  .next-when{ font-size:11.5px; color:var(--text-muted); flex-shrink:0; }
+
+  /* ---------- Classification ---------- */
+  .group-select{
+    display:flex; gap:6px; overflow-x:auto; margin-bottom:2px;
+  }
+  .group-pill{
+    border:1px solid var(--border); background:var(--surface-2); color:var(--text-muted);
+    font-weight:700; font-size:12.5px; padding:7px 13px; border-radius:999px; cursor:pointer;
+    flex-shrink:0;
+  }
+  .group-pill.active{ background:var(--pink); border-color:var(--pink); color:#fff; }
+
+  table.tabela{ width:100%; border-collapse:collapse; font-size:12.5px; }
+  table.tabela th{
+    text-align:left; color:var(--text-faint); font-weight:700; font-size:10.5px;
+    text-transform:uppercase; letter-spacing:.5px; padding-bottom:8px; border-bottom:1px solid var(--border);
+  }
+  table.tabela th.num, table.tabela td.num{ text-align:center; }
+  table.tabela td{ padding-block:12px; border-bottom:1px solid var(--border); font-family:var(--font-mono); font-variant-numeric:tabular-nums; }
+  table.tabela tr:last-child td{ border-bottom:0; }
+  table.tabela td.dupla{ font-family:var(--font-body); font-weight:700; }
+  .pos{
+    display:inline-flex; align-items:center; justify-content:center;
+    width:20px; height:20px; border-radius:6px; font-size:11px; font-weight:800;
+    background:var(--surface-2); color:var(--text-muted); margin-right:2px;
+  }
+  tr.classifica .pos{ background:rgba(255,47,126,.18); color:var(--pink); }
+  .saldo.pos-val{ color:var(--live); }
+  .saldo.neg-val{ color:#ff6b6b; }
+  .legenda{ margin-top:10px; color:var(--text-faint); font-size:11px; display:flex; gap:14px; }
+  .legenda span{ display:inline-flex; align-items:center; gap:5px; }
+  .legenda i{ width:9px; height:9px; border-radius:3px; background:rgba(255,47,126,.4); display:inline-block; }
+
+  /* ---------- Bracket ---------- */
+  .fase-label{ font-family:var(--font-display); font-size:12px; letter-spacing:1px; color:var(--text-muted); text-transform:uppercase; margin-bottom:8px; }
+  .confronto{
+    display:flex; flex-direction:column; gap:0; border:1px solid var(--border);
+    border-radius:10px; overflow:hidden; margin-bottom:10px; background:var(--surface-2);
+  }
+  .confronto .lado{ display:flex; justify-content:space-between; padding:8px 11px; font-size:13px; font-weight:600; }
+  .confronto .lado:first-child{ border-bottom:1px solid var(--border); }
+  .confronto .lado.vencedor{ color:var(--pink); }
+  .confronto .lado span.pts{ font-family:var(--font-mono); color:var(--text-muted); }
+  .confronto.pendente .lado{ color:var(--text-faint); }
+  .confronto.pendente .lado span.pts{ color:var(--text-faint); }
+
+  /* ---------- Admin ---------- */
+  .login-card{ text-align:center; padding-block:28px; }
+  .login-card .flame-big{ font-size:34px; margin-bottom:6px; display:block; }
+  .field{ display:flex; flex-direction:column; gap:6px; text-align:left; margin-top:18px; }
+  .field label{ font-size:11.5px; color:var(--text-muted); font-weight:700; text-transform:uppercase; letter-spacing:.6px; }
+  .field input{
+    background:var(--surface-2); border:1px solid var(--border); border-radius:10px;
+    padding:12px 13px; color:var(--text); font-family:var(--font-mono); font-size:15px;
+    letter-spacing:2px;
+  }
+  .field input:focus{ outline:2px solid var(--pink); outline-offset:1px; }
+  .btn{
+    border:0; border-radius:11px; padding:13px 16px; font-family:var(--font-body);
+    font-weight:800; font-size:13.5px; letter-spacing:.3px; cursor:pointer; width:100%;
+  }
+  .btn-primary{ background:var(--pink); color:#fff; margin-top:16px; }
+  .btn-primary:active{ background:var(--pink-deep); }
+  .btn-ghost{ background:transparent; border:1px solid var(--border); color:var(--text-muted); }
+  .hint{ color:var(--text-faint); font-size:11px; margin-top:14px; }
+
+  .admin-header{ display:flex; align-items:center; justify-content:space-between; }
+  .admin-header .who{ font-size:12px; color:var(--text-muted); }
+  .logout{ background:transparent; border:0; color:var(--text-faint); font-size:12px; text-decoration:underline; cursor:pointer; padding:0; }
+
+  .status-row{ display:flex; gap:10px; }
+  .status-pill{
+    flex:1; text-align:center; padding:11px 4px; border-radius:10px; font-size:11px;
+    font-weight:800; letter-spacing:.4px; text-transform:uppercase; border:1px solid var(--border);
+    color:var(--text-muted); background:var(--surface-2);
+  }
+  .status-pill strong{ display:block; font-family:var(--font-mono); font-size:17px; color:var(--text); margin-top:4px; font-weight:700; }
+
+  .admin-live-controls{ margin-top:18px; }
+  .admin-live-controls .btn{ margin-top:0; }
+
+  .score-inputs{ display:flex; align-items:flex-end; justify-content:center; gap:16px; margin-top:18px; padding-top:18px; border-top:1px solid var(--border); }
+  .score-inputs .num-box{ display:flex; flex-direction:column; align-items:center; gap:7px; }
+  .score-inputs input{
+    width:64px; text-align:center; font-family:var(--font-mono); font-size:22px; font-weight:700;
+    background:var(--surface-2); border:1px solid var(--border); border-radius:10px; padding:9px 0;
+    color:var(--text);
+  }
+  .score-inputs input:focus{ outline:2px solid var(--pink); }
+  .score-inputs label{ font-size:11px; color:var(--text-faint); text-align:center; max-width:90px; }
+  .score-confirm{ display:flex; flex-direction:column; gap:10px; margin-top:16px; }
+  .score-confirm .btn-ghost{ margin-top:0; }
+
+  .admin-next-item{
+    display:flex; align-items:center; gap:12px; padding-block:13px; border-bottom:1px solid var(--border);
+  }
+  .admin-next-item:last-child{ border-bottom:0; }
+  .admin-next-item .info{ flex:1; min-width:0; }
+  .admin-next-item .info .t{ font-size:13px; font-weight:700; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .admin-next-item .info .q{ font-size:11px; color:var(--text-faint); font-family:var(--font-mono); }
+  .mini-btn{
+    border:1px solid var(--border); background:var(--surface-2); color:var(--text);
+    font-size:11px; font-weight:700; padding:7px 10px; border-radius:8px; cursor:pointer; flex-shrink:0;
+  }
+  .mini-btn.pink{ background:var(--pink); border-color:var(--pink); color:#fff; }
+
+  .toast{
+    position:fixed; left:50%; bottom:26px; transform:translateX(-50%) translateY(140%);
+    background:var(--surface-2); border:1px solid var(--pink); color:var(--text);
+    font-size:13px; font-weight:700; padding:11px 18px; border-radius:999px;
+    box-shadow:0 12px 30px -10px rgba(0,0,0,.6); transition:transform .25s ease; z-index:50;
+    white-space:nowrap;
+  }
+  .toast.show{ transform:translateX(-50%) translateY(0); }
+
+  footer.escola{
+    text-align:center; margin-top:6px; color:var(--text-faint); font-size:10.5px;
+    letter-spacing:.5px; text-transform:uppercase;
+  }
+  footer.escola b{ color:var(--gold); }
+</style>
+
+<div class="wrap">
+
+  <div class="header">
+    <div class="brand">
+      <span class="flame">🔥</span>
+      <h1>FIRE<span> CUP</span></h1>
+    </div>
+    <div class="subtitle">Campeonato de Futevôlei</div>
+  </div>
+
+  <div class="mode-switch">
+    <button class="active" data-mode="publico">Visão Pública</button>
+    <button data-mode="admin">Visão Admin</button>
+  </div>
+
+  <!-- ============ PÚBLICO ============ -->
+  <div id="view-publico">
+
+    <div class="tabs">
+      <button class="tab active" data-tab="ao-vivo">Ao Vivo</button>
+      <button class="tab" data-tab="classificacao">Classificação</button>
+      <button class="tab" data-tab="chaveamento">Chaveamento</button>
+    </div>
+
+    <!-- AO VIVO -->
+    <div class="view" id="tab-ao-vivo">
+      <div class="card live-card">
+        <div class="live-tag"><span class="live-dot"></span> Ao vivo · Quadra 1</div>
+        <div class="live-meta">Fase de grupos · Grupo B</div>
+        <div class="live-score">
+          <div class="live-team">
+            <span class="nome" id="pub-nome-a">Mel &amp; Duda</span>
+            <span class="jog">Grupo B</span>
+          </div>
+          <span class="live-vs">VS</span>
+          <div class="live-team right">
+            <span class="nome" id="pub-nome-b">Bia &amp; Rafa</span>
+            <span class="jog">Grupo B</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><h2>Próximos jogos</h2></div>
+        <div class="next-item">
+          <span class="quadra-chip">Q2</span>
+          <div class="next-teams">Léo &amp; Gui <span class="vs">×</span> Ana &amp; Sol</div>
+          <span class="next-when">15:40</span>
+        </div>
+        <div class="next-item">
+          <span class="quadra-chip">Q1</span>
+          <div class="next-teams">Kaká &amp; Vini <span class="vs">×</span> Tati &amp; Bru</div>
+          <span class="next-when">15:50</span>
+        </div>
+        <div class="next-item">
+          <span class="quadra-chip">Q2</span>
+          <div class="next-teams">Zeca &ndash; Nina <span class="vs">×</span> Bel &amp; Cadu</div>
+          <span class="next-when">16:00</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><h2>Últimos resultados</h2></div>
+        <div class="next-item">
+          <span class="quadra-chip">Q1</span>
+          <div class="next-teams">Léo &amp; Gui <b style="font-family:var(--font-mono)">18</b><span class="vs">×</span><b style="font-family:var(--font-mono)">14</b> Zeca &amp; Nina</div>
+        </div>
+        <div class="next-item">
+          <span class="quadra-chip">Q2</span>
+          <div class="next-teams">Tati &amp; Bru <b style="font-family:var(--font-mono)">18</b><span class="vs">×</span><b style="font-family:var(--font-mono)">16</b> Bel &amp; Cadu</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CLASSIFICAÇÃO -->
+    <div class="view" id="tab-classificacao" hidden>
+      <div class="card">
+        <div class="group-select">
+          <button class="group-pill active" data-grupo="A">Grupo A</button>
+          <button class="group-pill" data-grupo="B">Grupo B</button>
+          <button class="group-pill" data-grupo="C">Grupo C</button>
+          <button class="group-pill" data-grupo="D">Grupo D</button>
+        </div>
+        <table class="tabela" style="margin-top:14px;">
+          <thead>
+            <tr>
+              <th>Dupla</th>
+              <th class="num">J</th>
+              <th class="num">V</th>
+              <th class="num">PF</th>
+              <th class="num">PS</th>
+              <th class="num">SP</th>
+            </tr>
+          </thead>
+          <tbody id="tabela-body"></tbody>
+        </table>
+        <div class="legenda">
+          <span><i></i> classifica para as quartas</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- CHAVEAMENTO -->
+    <div class="view" id="tab-chaveamento" hidden>
+      <div class="card">
+        <div class="fase-label">Quartas de final</div>
+        <div class="confronto pendente">
+          <div class="lado"><span>1º Grupo A</span><span class="pts">&ndash;</span></div>
+          <div class="lado"><span>2º Grupo B</span><span class="pts">&ndash;</span></div>
+        </div>
+        <div class="confronto pendente">
+          <div class="lado"><span>1º Grupo C</span><span class="pts">&ndash;</span></div>
+          <div class="lado"><span>2º Grupo D</span><span class="pts">&ndash;</span></div>
+        </div>
+        <div class="confronto pendente">
+          <div class="lado"><span>1º Grupo B</span><span class="pts">&ndash;</span></div>
+          <div class="lado"><span>2º Grupo A</span><span class="pts">&ndash;</span></div>
+        </div>
+        <div class="confronto pendente">
+          <div class="lado"><span>1º Grupo D</span><span class="pts">&ndash;</span></div>
+          <div class="lado"><span>2º Grupo C</span><span class="pts">&ndash;</span></div>
+        </div>
+
+        <div class="fase-label" style="margin-top:18px;">Semifinal</div>
+        <div class="confronto pendente">
+          <div class="lado"><span>Venc. QF1</span><span class="pts">&ndash;</span></div>
+          <div class="lado"><span>Venc. QF2</span><span class="pts">&ndash;</span></div>
+        </div>
+        <div class="confronto pendente">
+          <div class="lado"><span>Venc. QF3</span><span class="pts">&ndash;</span></div>
+          <div class="lado"><span>Venc. QF4</span><span class="pts">&ndash;</span></div>
+        </div>
+
+        <div class="fase-label" style="margin-top:18px;">Final &amp; 3º lugar</div>
+        <div class="confronto pendente">
+          <div class="lado"><span>Perdedor SF1</span><span class="pts">&ndash;</span></div>
+          <div class="lado"><span>Perdedor SF2</span><span class="pts">&ndash;</span></div>
+        </div>
+        <div class="confronto pendente">
+          <div class="lado"><span>Venc. SF1</span><span class="pts">&ndash;</span></div>
+          <div class="lado"><span>Venc. SF2</span><span class="pts">&ndash;</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ ADMIN ============ -->
+  <div id="view-admin" hidden>
+
+    <!-- LOGIN -->
+    <div id="admin-login" class="card login-card">
+      <span class="flame-big">🔥</span>
+      <h2 style="font-family:var(--font-display); font-size:19px; letter-spacing:.5px;">ACESSO DA ORGANIZAÇÃO</h2>
+      <div class="field">
+        <label for="senha">Senha do campeonato</label>
+        <input id="senha" type="password" placeholder="••••••••" autocomplete="off">
+      </div>
+      <button class="btn btn-primary" id="btn-entrar">Entrar</button>
+      <div class="hint">Demonstração: qualquer senha com 4+ caracteres entra.</div>
+    </div>
+
+    <!-- PAINEL -->
+    <div id="admin-painel" hidden style="display:flex; flex-direction:column; gap:16px;">
+
+      <div class="admin-header">
+        <span class="who">Logado como <b>organização</b></span>
+        <button class="logout" id="btn-sair">sair</button>
+      </div>
+
+      <div class="status-row">
+        <div class="status-pill">Duplas<strong>16</strong></div>
+        <div class="status-pill">Quadras<strong>2</strong></div>
+        <div class="status-pill">Jogos feitos<strong>18/24</strong></div>
+      </div>
+
+      <div class="card live-card">
+        <div class="live-tag"><span class="live-dot"></span> Jogo em andamento · Quadra 1</div>
+        <div class="live-meta">Fase de grupos · Grupo B</div>
+        <div class="live-score">
+          <div class="live-team">
+            <span class="nome">Mel &amp; Duda</span>
+          </div>
+          <span class="live-vs">VS</span>
+          <div class="live-team right">
+            <span class="nome">Bia &amp; Rafa</span>
+          </div>
+        </div>
+
+        <div class="admin-live-controls" id="bloco-abrir-resultado">
+          <button class="btn btn-primary" style="margin-top:0;" id="btn-abrir-resultado">Finalizar jogo · lançar resultado</button>
+        </div>
+
+        <div class="score-inputs" id="bloco-score" hidden>
+          <div class="num-box">
+            <input type="number" min="0" max="18" id="input-a" placeholder="0">
+            <label>Mel &amp; Duda</label>
+          </div>
+          <span style="color:var(--text-faint); font-family:var(--font-mono); font-size:18px; padding-bottom:9px;">×</span>
+          <div class="num-box">
+            <input type="number" min="0" max="18" id="input-b" placeholder="0">
+            <label>Bia &amp; Rafa</label>
+          </div>
+        </div>
+        <div class="score-confirm" id="bloco-confirmar" hidden>
+          <button class="btn btn-primary" style="margin-top:0;" id="btn-finalizar">Confirmar resultado</button>
+          <button class="btn btn-ghost" id="btn-cancelar-resultado">Cancelar</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">
+          <h2>Próximos jogos</h2>
+        </div>
+        <div class="admin-next-item">
+          <span class="quadra-chip">Q2</span>
+          <div class="info">
+            <div class="t">Léo &amp; Gui × Ana &amp; Sol</div>
+            <div class="q">Grupo A · 15:40</div>
+          </div>
+          <button class="mini-btn pink">Iniciar</button>
+        </div>
+        <div class="admin-next-item">
+          <span class="quadra-chip">Q1</span>
+          <div class="info">
+            <div class="t">Kaká &amp; Vini × Tati &amp; Bru</div>
+            <div class="q">Grupo C · 15:50</div>
+          </div>
+          <button class="mini-btn">Editar</button>
+        </div>
+        <div class="admin-next-item">
+          <span class="quadra-chip">Q2</span>
+          <div class="info">
+            <div class="t">Zeca &amp; Nina × Bel &amp; Cadu</div>
+            <div class="q">Grupo D · 16:00</div>
+          </div>
+          <button class="mini-btn">Editar</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">
+          <h2>Gestão</h2>
+        </div>
+        <div style="display:flex; flex-direction:column; gap:8px;">
+          <button class="btn btn-ghost" style="text-align:left;">Cadastrar / editar duplas</button>
+          <button class="btn btn-ghost" style="text-align:left;">Sortear grupos</button>
+          <button class="btn btn-ghost" style="text-align:left;">Configurar quadras e horários</button>
+          <button class="btn btn-ghost" style="text-align:left;">Gerar chaveamento do mata-mata</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="escola">A escola é <b>laranja &amp; preto</b> · a Fire Cup é rosa</footer>
+</div>
+
+<div class="toast" id="toast">Resultado salvo</div>
+
+<script>
+(function(){
+  // ---- mock data: classificação por grupo, já com saldo de pontos calculado ----
+  var classificacao = {
+    A: [
+      {dupla:'Léo & Gui', j:3, v:3, pf:52, ps:31},
+      {dupla:'Ana & Sol', j:3, v:2, pf:48, ps:39},
+      {dupla:'Kaká & Vini', j:3, v:1, pf:37, ps:44},
+      {dupla:'Zeca & Nina', j:3, v:0, pf:29, ps:52}
+    ],
+    B: [
+      {dupla:'Bia & Rafa', j:2, v:2, pf:35, ps:22},
+      {dupla:'Mel & Duda', j:2, v:1, pf:29, ps:24},
+      {dupla:'Cacá & Ian', j:2, v:1, pf:27, ps:28},
+      {dupla:'Sil & Tom', j:2, v:0, pf:18, ps:35}
+    ],
+    C: [
+      {dupla:'Tati & Bru', j:3, v:3, pf:50, ps:30},
+      {dupla:'Bel & Cadu', j:3, v:2, pf:44, ps:38},
+      {dupla:'Duda & Ivo', j:3, v:1, pf:36, ps:41},
+      {dupla:'Rita & Caio', j:3, v:0, pf:27, ps:48}
+    ],
+    D: [
+      {dupla:'Nat & Bento', j:2, v:2, pf:31, ps:19},
+      {dupla:'Fê & Lucas', j:2, v:1, pf:26, ps:23},
+      {dupla:'Ju & Otto', j:2, v:1, pf:24, ps:25},
+      {dupla:'Cris & Davi', j:2, v:0, pf:16, ps:30}
+    ]
+  };
+
+  function render(grupo){
+    var linhas = classificacao[grupo].slice().sort(function(a,b){
+      var sa = a.pf-a.ps, sb = b.pf-b.ps;
+      if(b.v !== a.v) return b.v - a.v;
+      return sb - sa;
+    });
+    var tbody = document.getElementById('tabela-body');
+    tbody.innerHTML = '';
+    linhas.forEach(function(l, i){
+      var saldo = l.pf - l.ps;
+      var tr = document.createElement('tr');
+      if(i < 2) tr.className = 'classifica';
+      tr.innerHTML =
+        '<td class="dupla"><span class="pos">'+(i+1)+'</span>'+l.dupla+'</td>' +
+        '<td class="num">'+l.j+'</td>' +
+        '<td class="num">'+l.v+'</td>' +
+        '<td class="num">'+l.pf+'</td>' +
+        '<td class="num">'+l.ps+'</td>' +
+        '<td class="num '+(saldo>=0?'pos-val':'neg-val')+'">'+(saldo>0?'+':'')+saldo+'</td>';
+      tbody.appendChild(tr);
+    });
+  }
+  render('A');
+
+  document.querySelectorAll('.group-pill').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      document.querySelectorAll('.group-pill').forEach(function(b){ b.classList.remove('active'); });
+      btn.classList.add('active');
+      render(btn.dataset.grupo);
+    });
+  });
+
+  // ---- tabs público ----
+  document.querySelectorAll('.tabs .tab').forEach(function(tab){
+    tab.addEventListener('click', function(){
+      document.querySelectorAll('.tabs .tab').forEach(function(t){ t.classList.remove('active'); });
+      tab.classList.add('active');
+      ['ao-vivo','classificacao','chaveamento'].forEach(function(name){
+        document.getElementById('tab-'+name).hidden = (name !== tab.dataset.tab);
+      });
+    });
+  });
+
+  // ---- mode switch (mockup: público vs admin) ----
+  var viewPublico = document.getElementById('view-publico');
+  var viewAdmin = document.getElementById('view-admin');
+  document.querySelectorAll('.mode-switch button').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      document.querySelectorAll('.mode-switch button').forEach(function(b){ b.classList.remove('active'); });
+      btn.classList.add('active');
+      var isAdmin = btn.dataset.mode === 'admin';
+      viewPublico.hidden = isAdmin;
+      viewAdmin.hidden = !isAdmin;
+    });
+  });
+
+  // ---- admin login (mock) ----
+  var loginBox = document.getElementById('admin-login');
+  var painel = document.getElementById('admin-painel');
+  document.getElementById('btn-entrar').addEventListener('click', function(){
+    var senha = document.getElementById('senha').value;
+    if(senha.length >= 4){
+      loginBox.hidden = true;
+      painel.hidden = false;
+    } else {
+      document.getElementById('senha').style.outline = '2px solid #ff6b6b';
+    }
+  });
+  document.getElementById('btn-sair').addEventListener('click', function(){
+    painel.hidden = true;
+    loginBox.hidden = false;
+    document.getElementById('senha').value = '';
+  });
+
+  // ---- admin: lançar resultado só ao finalizar o jogo ----
+  var blocoAbrir = document.getElementById('bloco-abrir-resultado');
+  var blocoScore = document.getElementById('bloco-score');
+  var blocoConfirmar = document.getElementById('bloco-confirmar');
+
+  document.getElementById('btn-abrir-resultado').addEventListener('click', function(){
+    blocoAbrir.hidden = true;
+    blocoScore.hidden = false;
+    blocoConfirmar.hidden = false;
+  });
+  document.getElementById('btn-cancelar-resultado').addEventListener('click', function(){
+    blocoAbrir.hidden = false;
+    blocoScore.hidden = true;
+    blocoConfirmar.hidden = true;
+  });
+
+  var toast = document.getElementById('toast');
+  function showToast(msg){
+    toast.textContent = msg;
+    toast.classList.add('show');
+    setTimeout(function(){ toast.classList.remove('show'); }, 2200);
+  }
+
+  document.getElementById('btn-finalizar').addEventListener('click', function(){
+    showToast('Resultado salvo · jogo encerrado');
+  });
+
+  document.querySelectorAll('.mini-btn.pink').forEach(function(btn){
+    btn.addEventListener('click', function(){ showToast('Jogo iniciado na quadra'); });
+  });
+})();
+</script>
