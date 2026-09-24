@@ -109,7 +109,7 @@ export default function Step1DadosGerais({ campeonato, quadras, onAvancar }) {
   }
 
   return (
-    <form onSubmit={salvarEAvancar} className="flex flex-col gap-4">
+    <form onSubmit={salvarEAvancar} className="mx-auto flex w-full max-w-2xl flex-col gap-5">
       <Secao titulo="Sobre o campeonato">
         <Campo label="Nome do campeonato">
           <input className="input" value={form.nome} onChange={(e) => set('nome', e.target.value)} placeholder="Fire Cup Outubro" />
@@ -122,7 +122,7 @@ export default function Step1DadosGerais({ campeonato, quadras, onAvancar }) {
             placeholder="Iniciante, Intermediário..."
           />
         </Campo>
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-2 gap-3.5">
           <Campo label="Data">
             <input type="date" className="input" value={form.data} onChange={(e) => set('data', e.target.value)} />
           </Campo>
@@ -136,7 +136,7 @@ export default function Step1DadosGerais({ campeonato, quadras, onAvancar }) {
       </Secao>
 
       <Secao titulo="Formato">
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-2 gap-3.5">
           <Campo label="Número de duplas">
             <input type="number" min="2" className="input" value={form.num_duplas} onChange={(e) => set('num_duplas', e.target.value)} />
           </Campo>
@@ -196,9 +196,9 @@ export default function Step1DadosGerais({ campeonato, quadras, onAvancar }) {
 
 function Secao({ titulo, children }) {
   return (
-    <div className="rounded-2xl border border-border bg-surface p-5">
-      <div className="mb-3.5 text-[13px] font-bold uppercase tracking-wide text-muted">{titulo}</div>
-      <div className="flex flex-col gap-3">{children}</div>
+    <div className="rounded-2xl border border-border bg-surface p-6">
+      <div className="mb-4 text-[13px] font-bold uppercase tracking-wide text-muted">{titulo}</div>
+      <div className="flex flex-col gap-3.5">{children}</div>
     </div>
   )
 }

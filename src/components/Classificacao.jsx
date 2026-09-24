@@ -12,14 +12,14 @@ export default function Classificacao({ grupos, duplas, jogos, mostrarNivel }) {
 
   if (!grupos.length) {
     return (
-      <div className="rounded-2xl border border-border bg-surface p-5 text-center text-sm text-muted">
+      <div className="rounded-2xl border border-border bg-surface p-6 text-center text-sm text-muted">
         Grupos ainda não foram sorteados.
       </div>
     )
   }
 
   return (
-    <div className="rounded-2xl border border-border bg-surface p-5">
+    <div className="rounded-2xl border border-border bg-surface p-6">
       <div className="flex gap-1.5 overflow-x-auto pb-0.5">
         {grupos.map((g) => (
           <button

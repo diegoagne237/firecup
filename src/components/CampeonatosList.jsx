@@ -32,22 +32,22 @@ export default function CampeonatosList({ onAbrir }) {
   if (loading) return <div className="py-16 text-center text-sm text-muted">Carregando…</div>
 
   return (
-    <div className="flex flex-col gap-4">
-      <button onClick={novoCampeonato} className="btn-primary">
+    <div className="flex flex-col gap-6">
+      <button onClick={novoCampeonato} className="btn-primary sm:w-auto sm:self-start sm:px-8">
         + Novo campeonato
       </button>
 
       {campeonatos.length === 0 && (
-        <div className="rounded-2xl border border-border bg-surface p-6 text-center text-sm text-muted">
+        <div className="rounded-2xl border border-border bg-surface p-8 text-center text-sm text-muted">
           Nenhum campeonato criado ainda.
         </div>
       )}
 
-      <div className="flex flex-col gap-3">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
         {campeonatos.map((c) => (
           <div
             key={c.id}
-            className={`rounded-2xl border p-5 ${
+            className={`flex flex-col rounded-2xl border p-6 ${
               c.status === 'em_andamento' ? 'border-pinkdeep bg-gradient-to-br from-surface2 to-surface' : 'border-border bg-surface'
             }`}
           >
@@ -59,14 +59,14 @@ export default function CampeonatosList({ onAbrir }) {
               <Badge status={c.status} />
             </div>
 
-            <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-[11.5px] text-faint">
+            <div className="mt-3.5 flex flex-wrap gap-x-4 gap-y-1.5 text-[11.5px] text-faint">
               {c.data && <span>{new Date(c.data + 'T00:00:00').toLocaleDateString('pt-BR')}</span>}
               {c.local && <span>{c.local}</span>}
               {c.num_duplas && <span>{c.num_duplas} duplas</span>}
               {c.num_quadras && <span>{c.num_quadras} quadras</span>}
             </div>
 
-            <div className="mt-4 flex gap-2">
+            <div className="mt-5 flex gap-2.5">
               {c.status === 'cadastro' && (
                 <button onClick={() => onAbrir(c.id)} className="btn-primary">
                   Continuar cadastro

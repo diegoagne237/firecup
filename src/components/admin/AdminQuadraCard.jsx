@@ -47,8 +47,8 @@ export default function AdminQuadraCard({ quadra, jogos, duplas, grupos, campeon
   }
 
   return (
-    <div className="rounded-2xl border border-border bg-surface p-4">
-      <div className="mb-3 flex items-center justify-between">
+    <div className="rounded-2xl border border-border bg-surface p-5">
+      <div className="mb-3.5 flex items-center justify-between">
         <span className="font-display text-sm tracking-wide">
           Quadra {quadra.numero}
           {quadra.descricao && <span className="ml-1.5 font-body text-xs font-normal text-faint">{quadra.descricao}</span>}

@@ -21,19 +21,19 @@ export default function CampeonatoWizard({ campeonatoId, onVoltarLista, onConclu
   const etapaAtual = etapa ?? campeonato.etapa_cadastro ?? 1
 
   return (
-    <div className="flex flex-col gap-4">
-      <div className="flex items-center justify-between">
+    <div className="flex flex-col gap-6">
+      <div className="mx-auto flex w-full max-w-2xl items-center justify-between">
         <button onClick={onVoltarLista} className="text-xs text-faint underline">
           ← campeonatos
         </button>
         <span className="text-xs text-muted">{campeonato.nome || 'Novo campeonato'}</span>
       </div>
 
-      <div className="flex gap-1.5">
+      <div className="mx-auto flex w-full max-w-2xl gap-2">
         {ETAPAS.map((e) => (
           <div
             key={e.n}
-            className={`flex-1 rounded-full py-1.5 text-center text-[10.5px] font-bold uppercase tracking-wide ${
+            className={`flex-1 rounded-full py-2 text-center text-[10.5px] font-bold uppercase tracking-wide ${
               e.n === etapaAtual ? 'bg-pink text-white' : e.n < etapaAtual ? 'bg-pink/25 text-pink' : 'bg-surface2 text-faint'
             }`}
           >

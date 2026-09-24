@@ -9,10 +9,13 @@ const ehRotaAdmin = window.location.pathname.startsWith('/admin')
 
 export default function App() {
   const [modo] = useState(ehRotaAdmin ? 'admin' : 'publico')
+  // Admin é pensado pra uso em computador (mais largo); o público continua
+  // mobile-first, já que é isso que o pessoal vai abrir no celular.
+  const largura = modo === 'admin' ? 'max-w-6xl' : 'max-w-[480px]'
 
   return (
-    <div className="mx-auto flex min-h-full max-w-[480px] flex-col gap-5 px-4 pb-14 pt-6">
-      <header className="flex flex-col items-center gap-1.5 pb-0.5">
+    <div className={`mx-auto flex min-h-full ${largura} flex-col gap-6 px-5 pb-16 pt-7 sm:px-8`}>
+      <header className="flex flex-col items-center gap-2 pb-1">
         <div className="flex items-center gap-2.5">
           <span className="text-[22px] drop-shadow-[0_0_8px_rgba(255,106,26,0.35)]">🔥</span>
           <h1 className="font-display text-[26px] tracking-wide">

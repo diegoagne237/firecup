@@ -55,29 +55,29 @@ export default function Step2Duplas({ campeonato, duplas, onVoltar, onAvancar, r
   }
 
   return (
-    <div className="flex flex-col gap-4">
-      <div className="flex items-center justify-between rounded-2xl border border-border bg-surface p-4">
+    <div className="mx-auto flex w-full max-w-2xl flex-col gap-5">
+      <div className="flex items-center justify-between gap-4 rounded-2xl border border-border bg-surface p-5">
         <div>
           <div className="text-[13px] font-bold">Mostrar nível ao público</div>
-          <div className="text-[11.5px] text-faint">Tags F1–F5 / PR aparecem na visão pública das duplas</div>
+          <div className="mt-0.5 text-[11.5px] text-faint">Tags F1–F5 / PR aparecem na visão pública das duplas</div>
         </div>
         <Toggle checked={mostrarNivel} onChange={toggleMostrarNivel} />
       </div>
 
-      <form onSubmit={adicionarDupla} className="rounded-2xl border border-border bg-surface p-5">
-        <div className="mb-3.5 text-[13px] font-bold uppercase tracking-wide text-muted">Nova dupla</div>
-        <div className="flex flex-col gap-4">
+      <form onSubmit={adicionarDupla} className="rounded-2xl border border-border bg-surface p-6">
+        <div className="mb-4 text-[13px] font-bold uppercase tracking-wide text-muted">Nova dupla</div>
+        <div className="flex flex-col gap-5 sm:flex-row">
           <AtletaForm titulo="Atleta 1" valor={atleta1} onChange={setAtleta1} />
           <AtletaForm titulo="Atleta 2" valor={atleta2} onChange={setAtleta2} />
         </div>
-        {erro && <div className="mt-3 text-[12.5px] text-red-400">{erro}</div>}
-        <button type="submit" disabled={salvando} className="btn-primary mt-4">
+        {erro && <div className="mt-3.5 text-[12.5px] text-red-400">{erro}</div>}
+        <button type="submit" disabled={salvando} className="btn-primary mt-5">
           {salvando ? 'Adicionando…' : '+ Adicionar dupla'}
         </button>
       </form>
 
-      <div className="rounded-2xl border border-border bg-surface p-5">
-        <div className="mb-3.5 flex items-center justify-between text-[13px] font-bold uppercase tracking-wide text-muted">
+      <div className="rounded-2xl border border-border bg-surface p-6">
+        <div className="mb-4 flex items-center justify-between text-[13px] font-bold uppercase tracking-wide text-muted">
           <span>Duplas cadastradas</span>
           <span className="font-mono normal-case text-text">
             {duplas.length}
@@ -85,9 +85,9 @@ export default function Step2Duplas({ campeonato, duplas, onVoltar, onAvancar, r
           </span>
         </div>
         {duplas.length === 0 && <div className="text-sm text-muted">Nenhuma dupla cadastrada ainda.</div>}
-        <div className="flex flex-col gap-2.5">
+        <div className="flex flex-col gap-3">
           {duplas.map((d) => (
-            <div key={d.id} className="flex items-center justify-between gap-2 border-b border-border pb-2.5 last:border-0 last:pb-0">
+            <div key={d.id} className="flex items-center justify-between gap-3 border-b border-border pb-3 last:border-0 last:pb-0">
               <DuplaChip dupla={d} mostrarNivel={true} size="sm" />
               <button onClick={() => removerDupla(d.id)} className="shrink-0 text-[11px] text-faint underline">
                 remover
@@ -97,7 +97,7 @@ export default function Step2Duplas({ campeonato, duplas, onVoltar, onAvancar, r
         </div>
       </div>
 
-      <div className="flex gap-2.5">
+      <div className="flex gap-3">
         <button onClick={onVoltar} className="btn-ghost">
           Voltar
         </button>
@@ -111,7 +111,7 @@ export default function Step2Duplas({ campeonato, duplas, onVoltar, onAvancar, r
 
 function AtletaForm({ titulo, valor, onChange }) {
   return (
-    <div className="flex flex-col gap-2">
+    <div className="flex flex-1 flex-col gap-2.5">
       <div className="text-[11.5px] font-bold uppercase tracking-wide text-muted">{titulo}</div>
       <input
         className="input"
@@ -119,7 +119,7 @@ function AtletaForm({ titulo, valor, onChange }) {
         value={valor.nome}
         onChange={(e) => onChange({ ...valor, nome: e.target.value })}
       />
-      <div className="flex gap-2">
+      <div className="flex gap-2.5">
         <input
           className="input flex-1"
           placeholder="Apelido"
@@ -148,11 +148,13 @@ function Toggle({ checked, onChange }) {
     <button
       type="button"
       onClick={() => onChange(!checked)}
-      className={`relative h-7 w-12 shrink-0 rounded-full transition-colors ${checked ? 'bg-pink' : 'bg-surface2'}`}
+      className={`relative inline-flex h-8 w-[56px] shrink-0 items-center rounded-full transition-colors ${
+        checked ? 'bg-pink' : 'bg-surface2'
+      }`}
     >
       <span
-        className={`absolute top-1 h-5 w-5 rounded-full bg-white transition-transform ${
-          checked ? 'translate-x-6' : 'translate-x-1'
+        className={`inline-block h-6 w-6 transform rounded-full bg-white shadow transition-transform ${
+          checked ? 'translate-x-[26px]' : 'translate-x-1'
         }`}
       />
     </button>

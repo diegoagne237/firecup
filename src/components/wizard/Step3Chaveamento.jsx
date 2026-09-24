@@ -40,7 +40,7 @@ export default function Step3Chaveamento({ campeonato, grupos, duplas, onVoltar,
   }
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="mx-auto flex w-full max-w-4xl flex-col gap-5">
       <div className="text-[12.5px] text-muted">
         Arraste cada dupla pro grupo dela (ou toque na dupla e depois no grupo). Grupos podem ficar com números
         diferentes de duplas — sem problema.
@@ -50,12 +50,12 @@ export default function Step3Chaveamento({ campeonato, grupos, duplas, onVoltar,
         onDragOver={onDragOver}
         onDrop={(e) => onDrop(e, null)}
         onClick={() => onClickZona(null)}
-        className="rounded-2xl border border-dashed border-border bg-surface p-4"
+        className="rounded-2xl border border-dashed border-border bg-surface p-5"
       >
-        <div className="mb-2.5 text-[11.5px] font-bold uppercase tracking-wide text-faint">
+        <div className="mb-3 text-[11.5px] font-bold uppercase tracking-wide text-faint">
           Sem grupo · {semGrupo.length}
         </div>
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap gap-2.5">
           {semGrupo.length === 0 && <span className="text-sm text-muted">Todas as duplas já têm grupo.</span>}
           {semGrupo.map((d) => (
             <CardDupla key={d.id} dupla={d} selecionada={selecionada === d.id} onDragStart={onDragStart} onClick={onClickDupla} />
@@ -63,7 +63,7 @@ export default function Step3Chaveamento({ campeonato, grupos, duplas, onVoltar,
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {grupos.map((g) => {
           const daqui = duplas.filter((d) => d.grupo_id === g.id)
           return (
@@ -72,12 +72,12 @@ export default function Step3Chaveamento({ campeonato, grupos, duplas, onVoltar,
               onDragOver={onDragOver}
               onDrop={(e) => onDrop(e, g.id)}
               onClick={() => onClickZona(g.id)}
-              className="min-h-[120px] rounded-2xl border border-border bg-surface2 p-3.5"
+              className="min-h-[140px] rounded-2xl border border-border bg-surface2 p-4"
             >
-              <div className="mb-2.5 font-display text-xs uppercase tracking-wide text-muted">
+              <div className="mb-3 font-display text-xs uppercase tracking-wide text-muted">
                 {g.nome} · {daqui.length}
               </div>
-              <div className="flex flex-col gap-1.5">
+              <div className="flex flex-col gap-2">
                 {daqui.map((d) => (
                   <CardDupla key={d.id} dupla={d} selecionada={selecionada === d.id} onDragStart={onDragStart} onClick={onClickDupla} compact />
                 ))}
@@ -87,7 +87,7 @@ export default function Step3Chaveamento({ campeonato, grupos, duplas, onVoltar,
         })}
       </div>
 
-      <div className="flex gap-2.5">
+      <div className="mx-auto flex w-full max-w-2xl gap-3">
         <button onClick={onVoltar} className="btn-ghost">
           Voltar
         </button>

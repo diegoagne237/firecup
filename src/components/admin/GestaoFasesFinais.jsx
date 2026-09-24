@@ -49,10 +49,10 @@ export default function GestaoFasesFinais({ campeonato, quadras, duplas, jogos, 
   }
 
   return (
-    <div className="rounded-2xl border border-border bg-surface p-5">
-      <div className="mb-3.5 text-[13px] font-bold uppercase tracking-wide text-muted">Fases finais</div>
+    <div className="rounded-2xl border border-border bg-surface p-6">
+      <div className="mb-4 text-[13px] font-bold uppercase tracking-wide text-muted">Fases finais</div>
 
-      <form onSubmit={adicionar} className="flex flex-col gap-2.5">
+      <form onSubmit={adicionar} className="flex flex-col gap-3">
         <select className="input" value={fase} onChange={(e) => setFase(e.target.value)}>
           {FASES.map((f) => (
             <option key={f.key} value={f.key}>
@@ -92,7 +92,7 @@ export default function GestaoFasesFinais({ campeonato, quadras, duplas, jogos, 
       </form>
 
       {fasesJogos.length > 0 && (
-        <div className="mt-4 flex flex-col gap-2 border-t border-border pt-3.5">
+        <div className="mt-5 flex flex-col gap-2.5 border-t border-border pt-4">
           {fasesJogos.map((j) => (
             <div key={j.id} className="flex items-center justify-between gap-2 text-[12.5px]">
               <span className="min-w-0 truncate">

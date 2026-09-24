@@ -72,39 +72,41 @@ export default function Step4Jogos({ campeonato, quadras, grupos, duplas, onVolt
   }
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="mx-auto flex w-full max-w-4xl flex-col gap-5">
       {naoAlocadas > 0 && (
-        <div className="rounded-xl border border-gold/40 bg-gold/10 p-3 text-[12.5px] text-gold">
+        <div className="rounded-xl border border-gold/40 bg-gold/10 p-3.5 text-[12.5px] text-gold">
           {naoAlocadas} dupla(s) sem grupo — elas não entram nos confrontos gerados.
         </div>
       )}
 
       {semDuplasSuficientes ? (
-        <div className="rounded-2xl border border-border bg-surface p-5 text-center text-sm text-muted">
+        <div className="rounded-2xl border border-border bg-surface p-6 text-center text-sm text-muted">
           Nenhum grupo tem duplas suficientes pra gerar confrontos ainda. Volte e complete o chaveamento.
         </div>
       ) : (
-        <div className="flex flex-col gap-3">
-          {porQuadra.map(({ quadra, jogos }) => (
-            <div key={quadra.id} className="rounded-2xl border border-border bg-surface p-4">
-              <div className="mb-2.5 font-display text-xs uppercase tracking-wide text-muted">
-                Quadra {quadra.numero} · {jogos.length} jogos
+        <div className="flex flex-col gap-4">
+          <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+            {porQuadra.map(({ quadra, jogos }) => (
+              <div key={quadra.id} className="rounded-2xl border border-border bg-surface p-5">
+                <div className="mb-3 font-display text-xs uppercase tracking-wide text-muted">
+                  Quadra {quadra.numero} · {jogos.length} jogos
+                </div>
+                <div className="flex flex-col gap-2.5">
+                  {jogos.map((j, i) => (
+                    <div key={i} className="flex items-center justify-between gap-3 border-b border-border pb-2.5 text-[12.5px] last:border-0">
+                      <span className="min-w-0 truncate">
+                        <span className="mr-1.5 font-mono text-faint">{nomeGrupo(grupos, j.grupoId)}</span>
+                        {j.dupla1.atleta1_apelido} &amp; {j.dupla1.atleta2_apelido}
+                        <span className="px-1 text-faint">×</span>
+                        {j.dupla2.atleta1_apelido} &amp; {j.dupla2.atleta2_apelido}
+                      </span>
+                      <span className="shrink-0 font-mono text-muted">{formatarHorario(j.horarioPrevisto.toISOString())}</span>
+                    </div>
+                  ))}
+                </div>
               </div>
-              <div className="flex flex-col gap-2">
-                {jogos.map((j, i) => (
-                  <div key={i} className="flex items-center justify-between gap-2 border-b border-border pb-2 text-[12.5px] last:border-0">
-                    <span className="min-w-0 truncate">
-                      <span className="mr-1.5 font-mono text-faint">{nomeGrupo(grupos, j.grupoId)}</span>
-                      {j.dupla1.atleta1_apelido} &amp; {j.dupla1.atleta2_apelido}
-                      <span className="px-1 text-faint">×</span>
-                      {j.dupla2.atleta1_apelido} &amp; {j.dupla2.atleta2_apelido}
-                    </span>
-                    <span className="shrink-0 font-mono text-muted">{formatarHorario(j.horarioPrevisto.toISOString())}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          ))}
+            ))}
+          </div>
           <div className="text-center text-[11px] text-faint">
             Horários são uma estimativa — se recalculam sozinhos conforme os jogos acontecem.
           </div>
@@ -113,17 +115,19 @@ export default function Step4Jogos({ campeonato, quadras, grupos, duplas, onVolt
 
       {erro && <div className="text-[12.5px] text-red-400">{erro}</div>}
 
-      <div className="flex gap-2.5">
-        <button onClick={onVoltar} className="btn-ghost">
-          Voltar
-        </button>
-        <button onClick={() => setVersao((v) => v + 1)} className="btn-ghost">
-          Gerar novamente
+      <div className="mx-auto flex w-full max-w-2xl flex-col gap-3">
+        <div className="flex gap-3">
+          <button onClick={onVoltar} className="btn-ghost">
+            Voltar
+          </button>
+          <button onClick={() => setVersao((v) => v + 1)} className="btn-ghost">
+            Gerar novamente
+          </button>
+        </div>
+        <button onClick={confirmar} disabled={confirmando || semDuplasSuficientes} className="btn-primary">
+          {confirmando ? 'Criando jogos…' : 'Confirmar e iniciar campeonato'}
         </button>
       </div>
-      <button onClick={confirmar} disabled={confirmando || semDuplasSuficientes} className="btn-primary">
-        {confirmando ? 'Criando jogos…' : 'Confirmar e iniciar campeonato'}
-      </button>
     </div>
   )
 }
