@@ -2,6 +2,21 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer components {
+  .input {
+    @apply w-full rounded-lg border border-border bg-surface2 px-3.5 py-2.5 text-text outline-none;
+  }
+  .input:focus {
+    @apply ring-2 ring-pink;
+  }
+  .btn-primary {
+    @apply w-full rounded-xl bg-pink py-3.5 font-bold text-white active:bg-pinkdeep disabled:opacity-50;
+  }
+  .btn-ghost {
+    @apply w-full rounded-xl border border-border py-3.5 font-bold text-muted;
+  }
+}
+
 html, body, #root {
   min-height: 100%;
 }

@@ -1,28 +1,49 @@
 import { useEffect, useState, useCallback } from 'react'
 import { supabase } from './supabase'
 
-// Carrega o campeonato ativo (ou o mais recente) e mantém tudo sincronizado
-// em tempo real via Supabase Realtime, sem precisar dar refresh na página.
-export function useCampeonato() {
+// Lista todos os campeonatos (pode haver mais de um simultâneo — categorias
+// diferentes). Usado na tela inicial do admin e no seletor da visão pública.
+export function useCampeonatos() {
+  const [campeonatos, setCampeonatos] = useState([])
+  const [loading, setLoading] = useState(true)
+
+  const carregar = useCallback(async () => {
+    const { data } = await supabase.from('campeonatos').select('*').order('created_at', { ascending: false })
+    setCampeonatos(data || [])
+    setLoading(false)
+  }, [])
+
+  useEffect(() => {
+    carregar()
+    const canal = supabase
+      .channel('campeonatos-lista')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'campeonatos' }, carregar)
+      .subscribe()
+    return () => supabase.removeChannel(canal)
+  }, [carregar])
+
+  return { campeonatos, loading, refetch: carregar }
+}
+
+// Carrega um campeonato específico (por id) com tudo em tempo real:
+// quadras, grupos, duplas e jogos.
+export function useCampeonato(campeonatoId) {
   const [campeonato, setCampeonato] = useState(null)
   const [quadras, setQuadras] = useState([])
   const [grupos, setGrupos] = useState([])
   const [duplas, setDuplas] = useState([])
   const [jogos, setJogos] = useState([])
   const [loading, setLoading] = useState(true)
-  const [erro, setErro] = useState(null)
 
-  const carregarTudo = useCallback(async (campeonatoId) => {
-    const [{ data: q }, { data: g }, { data: d }, { data: j }] = await Promise.all([
-      supabase.from('quadras').select('*').eq('campeonato_id', campeonatoId).order('numero'),
-      supabase.from('grupos').select('*').eq('campeonato_id', campeonatoId).order('nome'),
-      supabase.from('duplas').select('*').eq('campeonato_id', campeonatoId).order('nome'),
-      supabase
-        .from('jogos')
-        .select('*')
-        .eq('campeonato_id', campeonatoId)
-        .order('ordem', { ascending: true, nullsFirst: true }),
+  const carregarTudo = useCallback(async (id) => {
+    const [{ data: camp }, { data: q }, { data: g }, { data: d }, { data: j }] = await Promise.all([
+      supabase.from('campeonatos').select('*').eq('id', id).maybeSingle(),
+      supabase.from('quadras').select('*').eq('campeonato_id', id).order('numero'),
+      supabase.from('grupos').select('*').eq('campeonato_id', id).order('nome'),
+      supabase.from('duplas').select('*').eq('campeonato_id', id).order('created_at'),
+      supabase.from('jogos').select('*').eq('campeonato_id', id).order('ordem', { ascending: true, nullsFirst: true }),
     ])
+    setCampeonato(camp || null)
     setQuadras(q || [])
     setGrupos(g || [])
     setDuplas(d || [])
@@ -30,70 +51,47 @@ export function useCampeonato() {
   }, [])
 
   useEffect(() => {
-    let canal
-
-    async function init() {
-      setLoading(true)
-      // pega o campeonato em andamento; se não houver, pega o mais recente
-      let { data: ativo, error: e1 } = await supabase
-        .from('campeonatos')
-        .select('*')
-        .eq('status', 'em_andamento')
-        .limit(1)
-        .maybeSingle()
-
-      if (!ativo && !e1) {
-        const { data: recente } = await supabase
-          .from('campeonatos')
-          .select('*')
-          .order('created_at', { ascending: false })
-          .limit(1)
-          .maybeSingle()
-        ativo = recente
-      }
-
-      if (!ativo) {
-        setErro('Nenhum campeonato cadastrado ainda.')
-        setLoading(false)
-        return
-      }
-
-      setCampeonato(ativo)
-      await carregarTudo(ativo.id)
+    if (!campeonatoId) {
       setLoading(false)
-
-      // Realtime: qualquer mudança em jogos deste campeonato atualiza a tela na hora
-      canal = supabase
-        .channel(`campeonato-${ativo.id}`)
-        .on(
-          'postgres_changes',
-          { event: '*', schema: 'public', table: 'jogos', filter: `campeonato_id=eq.${ativo.id}` },
-          () => carregarTudo(ativo.id)
-        )
-        .on(
-          'postgres_changes',
-          { event: '*', schema: 'public', table: 'duplas', filter: `campeonato_id=eq.${ativo.id}` },
-          () => carregarTudo(ativo.id)
-        )
-        .subscribe()
+      return
     }
+    let canal
+    setLoading(true)
+    carregarTudo(campeonatoId).then(() => setLoading(false))
 
-    init()
+    canal = supabase
+      .channel(`campeonato-${campeonatoId}`)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'jogos', filter: `campeonato_id=eq.${campeonatoId}` }, () =>
+        carregarTudo(campeonatoId)
+      )
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'duplas', filter: `campeonato_id=eq.${campeonatoId}` }, () =>
+        carregarTudo(campeonatoId)
+      )
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'campeonatos', filter: `id=eq.${campeonatoId}` }, () =>
+        carregarTudo(campeonatoId)
+      )
+      .subscribe()
 
     return () => {
       if (canal) supabase.removeChannel(canal)
     }
-  }, [carregarTudo])
+  }, [campeonatoId, carregarTudo])
 
   const refetch = useCallback(() => {
-    if (campeonato) carregarTudo(campeonato.id)
-  }, [campeonato, carregarTudo])
+    if (campeonatoId) carregarTudo(campeonatoId)
+  }, [campeonatoId, carregarTudo])
 
-  return { campeonato, quadras, grupos, duplas, jogos, loading, erro, refetch }
+  return { campeonato, quadras, grupos, duplas, jogos, loading, refetch }
 }
 
-// Calcula a classificação de um grupo a partir dos jogos finalizados,
-// espelhando a view `classificacao_grupos` do banco (V, PF, PS, saldo de pontos).
+// Nome de exibição da dupla, ex: "Mel & Duda"
+export function nomeExibicaoDupla(dupla) {
+  if (!dupla) return '—'
+  return `${dupla.atleta1_apelido} & ${dupla.atleta2_apelido}`
+}
+
+// Calcula a classificação de um grupo a partir dos jogos finalizados
+// (V, PF, PS, saldo de pontos como critério de desempate).
 export function calcularClassificacao(grupoId, duplas, jogos) {
   const doGrupo = duplas.filter((d) => d.grupo_id === grupoId)
   const linhas = doGrupo.map((d) => ({ dupla: d, j: 0, v: 0, pf: 0, ps: 0 }))

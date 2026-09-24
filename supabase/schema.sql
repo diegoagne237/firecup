@@ -1,27 +1,39 @@
 -- ============================================
--- Schema: Fire Cup — Campeonato de Futevôlei
+-- Schema: Fire Cup — Campeonato de Futevôlei (v2)
 -- ============================================
 -- Rode este arquivo inteiro no SQL Editor do Supabase (Project > SQL Editor > New query).
+-- Se você já rodou a v1 deste schema, rode antes: drop table if exists jogos, duplas, grupos, quadras, campeonatos cascade;
 
--- Campeonato (permite reaproveitar o app pra futuras edições)
+-- Campeonato (podem existir vários simultâneos — ex: categorias diferentes)
 create table campeonatos (
   id uuid primary key default gen_random_uuid(),
   nome text not null,
+  categoria text,
+  data date,
+  horario_base timestamptz,           -- horário de início previsto do 1º jogo
+  local text,
+  num_duplas int,
   num_quadras int not null default 1,
+  num_grupos int,
+  duplas_por_grupo int,               -- alvo informativo; grupos podem ficar desbalanceados
+  tempo_jogo_min int not null default 15,
+  intervalo_min int not null default 5,
+  mostrar_nivel boolean not null default true,
   status text not null default 'cadastro' check (status in ('cadastro', 'em_andamento', 'finalizado')),
+  etapa_cadastro int not null default 1,  -- 1..4, em qual etapa do wizard o cadastro parou
   created_at timestamptz not null default now()
 );
 
--- Quadras do campeonato (geradas a partir de num_quadras, guardadas pra poder nomear/numerar)
+-- Quadras do campeonato
 create table quadras (
   id uuid primary key default gen_random_uuid(),
   campeonato_id uuid not null references campeonatos(id) on delete cascade,
   numero int not null,
-  nome text,
+  descricao text,
   unique (campeonato_id, numero)
 );
 
--- Grupos (A, B, C, D)
+-- Grupos (A, B, C, D...)
 create table grupos (
   id uuid primary key default gen_random_uuid(),
   campeonato_id uuid not null references campeonatos(id) on delete cascade,
@@ -29,14 +41,17 @@ create table grupos (
   unique (campeonato_id, nome)
 );
 
--- Duplas
+-- Duplas — cada atleta com nome, apelido e nível (F1-F5 ou PR de professor)
 create table duplas (
   id uuid primary key default gen_random_uuid(),
   campeonato_id uuid not null references campeonatos(id) on delete cascade,
   grupo_id uuid references grupos(id) on delete set null,
-  nome text not null,
-  jogador1 text not null,
-  jogador2 text not null,
+  atleta1_nome text not null,
+  atleta1_apelido text not null,
+  atleta1_nivel text check (atleta1_nivel in ('F1', 'F2', 'F3', 'F4', 'F5', 'PR')),
+  atleta2_nome text not null,
+  atleta2_apelido text not null,
+  atleta2_nivel text check (atleta2_nivel in ('F1', 'F2', 'F3', 'F4', 'F5', 'PR')),
   eliminada boolean not null default false,
   created_at timestamptz not null default now()
 );
@@ -53,8 +68,10 @@ create table jogos (
   pontos_dupla1 int,
   pontos_dupla2 int,
   status text not null default 'agendado' check (status in ('agendado', 'em_andamento', 'finalizado')),
-  horario timestamptz,
-  ordem int,
+  horario_previsto timestamptz,     -- estimativa, recalculada dinamicamente
+  horario_inicio_real timestamptz,  -- preenchido quando o admin clica "Iniciar"
+  horario_fim_real timestamptz,     -- preenchido quando o admin lança o resultado
+  ordem int,                        -- posição na fila da quadra (usado para reordenar estimativas)
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
@@ -63,7 +80,7 @@ create table jogos (
 -- Índices úteis
 -- ============================================
 create index idx_jogos_campeonato_status on jogos(campeonato_id, status);
-create index idx_jogos_quadra on jogos(quadra_id);
+create index idx_jogos_quadra_ordem on jogos(quadra_id, ordem);
 create index idx_duplas_grupo on duplas(grupo_id);
 
 -- ============================================
@@ -88,13 +105,10 @@ create policy "admin write duplas" on duplas for all using (auth.role() = 'authe
 create policy "admin write jogos" on jogos for all using (auth.role() = 'authenticated');
 
 -- ============================================
--- Realtime: liga a tabela jogos e duplas pro app receber updates ao vivo
--- (no Supabase, isso também pode ser ativado por Database > Replication)
+-- Realtime: liga as tabelas pro app receber updates ao vivo
 -- ============================================
-alter publication supabase_realtime add table jogos;
+alter publication supabase_realtime add table campeonatos;
+alter publication supabase_realtime add table quadras;
+alter publication supabase_realtime add table grupos;
 alter publication supabase_realtime add table duplas;
-
--- ============================================
--- Dados de exemplo para testar (opcional — apague antes do campeonato real)
--- ============================================
-insert into campeonatos (nome, num_quadras, status) values ('Fire Cup 2026', 2, 'em_andamento');
+alter publication supabase_realtime add table jogos;

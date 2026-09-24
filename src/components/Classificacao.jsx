@@ -1,7 +1,8 @@
 import { useState, useMemo } from 'react'
 import { calcularClassificacao } from '../lib/useCampeonato'
+import DuplaChip from './DuplaChip'
 
-export default function Classificacao({ grupos, duplas, jogos }) {
+export default function Classificacao({ grupos, duplas, jogos, mostrarNivel }) {
   const [grupoAtivo, setGrupoAtivo] = useState(grupos[0]?.id)
 
   const linhas = useMemo(() => {
@@ -52,14 +53,16 @@ export default function Classificacao({ grupos, duplas, jogos }) {
           {linhas.map((l, i) => (
             <tr key={l.dupla.id} className={i < 2 ? 'bg-pink/[0.03]' : ''}>
               <td className="border-b border-border py-3 font-body font-bold">
-                <span
-                  className={`mr-1.5 inline-flex h-5 w-5 items-center justify-center rounded-md text-[11px] font-extrabold ${
-                    i < 2 ? 'bg-pink/20 text-pink' : 'bg-surface2 text-muted'
-                  }`}
-                >
-                  {i + 1}
+                <span className="inline-flex items-center gap-1.5">
+                  <span
+                    className={`inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-md text-[11px] font-extrabold ${
+                      i < 2 ? 'bg-pink/20 text-pink' : 'bg-surface2 text-muted'
+                    }`}
+                  >
+                    {i + 1}
+                  </span>
+                  <DuplaChip dupla={l.dupla} mostrarNivel={mostrarNivel} size="sm" />
                 </span>
-                {l.dupla.nome}
               </td>
               <td className="border-b border-border py-3 text-center">{l.j}</td>
               <td className="border-b border-border py-3 text-center">{l.v}</td>
